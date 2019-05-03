@@ -50,6 +50,11 @@ func TestPingPongDetach(t *testing.T) {
 		fmt.Println("Waiting for OnDataChannel")
 		attached := <-dcChan
 		fmt.Println("OnDataChannel was called")
+		open := make(chan struct{})
+		attached.OnOpen(func() {
+			open <- struct{}{}
+		})
+		<-open
 		dc, err := attached.Detach()
 		fmt.Println("post: pt1")
 		if err != nil {
