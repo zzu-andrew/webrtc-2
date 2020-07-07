@@ -10,8 +10,8 @@ func supportedNetworkTypes() []NetworkType {
 	return []NetworkType{
 		NetworkTypeUDP4,
 		NetworkTypeUDP6,
-		// NetworkTypeTCP4, // Not supported yet
-		// NetworkTypeTCP6, // Not supported yet
+		NetworkTypeTCP4, // Not supported yet
+		NetworkTypeTCP6, // Not supported yet
 	}
 }
 

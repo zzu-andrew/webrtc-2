@@ -140,16 +140,27 @@ func (c ICECandidate) String() string {
 }
 
 func iceCandidateToSDP(c ICECandidate) sdp.ICECandidate {
+
+	var extensions []sdp.ICECandidateAttribute
+
+	if c.Protocol == ICEProtocolTCP {
+		extensions = append(extensions, sdp.ICECandidateAttribute{
+			Key:   "tcptype",
+			Value: "passive",
+		})
+	}
+
 	return sdp.ICECandidate{
-		Foundation:     c.Foundation,
-		Priority:       c.Priority,
-		Address:        c.Address,
-		Protocol:       c.Protocol.String(),
-		Port:           c.Port,
-		Component:      c.Component,
-		Typ:            c.Typ.String(),
-		RelatedAddress: c.RelatedAddress,
-		RelatedPort:    c.RelatedPort,
+		Foundation:          c.Foundation,
+		Priority:            c.Priority,
+		Address:             c.Address,
+		Protocol:            c.Protocol.String(),
+		Port:                c.Port,
+		Component:           c.Component,
+		Typ:                 c.Typ.String(),
+		RelatedAddress:      c.RelatedAddress,
+		RelatedPort:         c.RelatedPort,
+		ExtensionAttributes: extensions,
 	}
 }
 

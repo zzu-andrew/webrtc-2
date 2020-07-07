@@ -46,6 +46,12 @@ func doSignaling(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	peerConnection.OnICECandidate(func(c *webrtc.ICECandidate) {
+		if c != nil {
+			fmt.Println("candidate", c.ToJSON().Candidate)
+		}
+	})
+
 	// Create channel that is blocked until ICE Gathering is complete
 	gatherComplete := webrtc.GatheringCompletePromise(peerConnection)
 

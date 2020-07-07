@@ -55,8 +55,20 @@
     window.doSignaling = iceRestart => {
       pc.createOffer({iceRestart})
         .then(offer => {
-          pc.setLocalDescription(offer)
-
+          const promise = new Promise(resolve => {
+            pc.onicecandidate = function(c) {
+              if (c.candidate == null) {
+                resolve(pc.localDescription)
+                return
+              }
+              console.log('candidate', c && c.candidate)
+            }
+          })
+          return pc.setLocalDescription(offer)
+          .then(() => promise)
+        })
+        .then(offer => {
+          console.log('local desc', offer.sdp)
           return fetch(`/doSignaling`, {
             method: 'post',
             headers: {
@@ -67,8 +79,11 @@
           })
         })
         .then(res => res.json())
-        .then(res => pc.setRemoteDescription(res))
-        .catch(alert)
+        .then(res => {
+          console.log("remote desc", res.sdp)
+          return pc.setRemoteDescription(res)
+        })
+        .catch(console.error)
     }
 
     window.doSignaling(false)
