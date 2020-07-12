@@ -110,7 +110,7 @@ func (g *ICEGatherer) createAgent() error {
 		MulticastDNSHostName:   g.api.settingEngine.candidates.MulticastDNSHostName,
 		LocalUfrag:             g.api.settingEngine.candidates.UsernameFragment,
 		LocalPwd:               g.api.settingEngine.candidates.Password,
-		TCPListenPort:          9999,
+		TCPListenPort:          g.api.settingEngine.iceTCPPort,
 	}
 
 	requestedNetworkTypes := g.api.settingEngine.candidates.ICENetworkTypes

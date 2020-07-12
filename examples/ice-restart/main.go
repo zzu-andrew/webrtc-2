@@ -15,7 +15,24 @@ func doSignaling(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if peerConnection == nil {
-		if peerConnection, err = webrtc.NewPeerConnection(webrtc.Configuration{}); err != nil {
+		m := webrtc.MediaEngine{}
+		m.RegisterDefaultCodecs()
+
+		settingEngine := webrtc.SettingEngine{}
+		settingEngine.SetInterfaceFilter(func(iface string) bool {
+			if iface == "en0" {
+				return true
+			}
+
+			return false
+		})
+		settingEngine.SetICETCPPort(8443)
+
+		api := webrtc.NewAPI(
+			webrtc.WithMediaEngine(m),
+			webrtc.WithSettingEngine(settingEngine),
+		)
+		if peerConnection, err = api.NewPeerConnection(webrtc.Configuration{}); err != nil {
 			panic(err)
 		}
 
