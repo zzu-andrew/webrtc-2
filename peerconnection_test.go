@@ -596,7 +596,6 @@ func TestNegotiationTrackAndChannel(t *testing.T) {
 		if err := track.WriteSample(media.Sample{Data: []byte{0x00}, Samples: 1}); err != nil {
 			t.Error(err.Error())
 		}
-
 	})
 	pcAnswer.OnTrack(func(*Track, *RTPReceiver) {
 		wg.Done()
@@ -659,7 +658,8 @@ func TestNegotiationNeededRemoveTrack(t *testing.T) {
 	assert.NoError(t, err)
 
 	pcOffer.OnNegotiationNeeded(func() {
-		offer, err := pcOffer.CreateOffer(nil)
+		var offer SessionDescription
+		offer, err = pcOffer.CreateOffer(nil)
 		assert.NoError(t, err)
 
 		offerGatheringComplete := GatheringCompletePromise(pcOffer)
@@ -670,7 +670,8 @@ func TestNegotiationNeededRemoveTrack(t *testing.T) {
 		err = pcAnswer.SetRemoteDescription(*pcOffer.LocalDescription())
 		assert.NoError(t, err)
 
-		answer, err := pcAnswer.CreateAnswer(nil)
+		var answer SessionDescription
+		answer, err = pcAnswer.CreateAnswer(nil)
 		assert.NoError(t, err)
 
 		answerGatheringComplete := GatheringCompletePromise(pcAnswer)

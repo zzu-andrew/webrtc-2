@@ -368,13 +368,11 @@ func (pc *PeerConnection) checkNegotiationNeeded() bool {
 				if !localDirOk && !remotDirOk {
 					return true
 				}
-				break
 			case SDPTypeAnswer:
 				// Step 5.3.3
 				if _, ok := m.Attribute(t.Direction().String()); !ok {
 					return true
 				}
-				break
 			}
 		}
 		// Step 5.4
