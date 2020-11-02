@@ -35,6 +35,8 @@ type Track struct {
 	activeSenders    []*RTPSender
 	totalSenderCount int // count of all senders (accounts for senders that have not been started yet)
 	peeked           []byte
+
+	interceptorChain *interceptorChain
 }
 
 // ID gets the ID of the track
@@ -149,6 +151,19 @@ func (t *Track) peek(b []byte) (n int, err error) {
 
 // ReadRTP is a convenience method that wraps Read and unmarshals for you
 func (t *Track) ReadRTP() (*rtp.Packet, error) {
+	p, err := t.readRTP()
+	if err != nil {
+		return nil, err
+	}
+
+	if t.interceptorChain == nil {
+		return p, nil
+	}
+
+	return t.interceptorChain.wrapReadRTP(p)
+}
+
+func (t *Track) readRTP() (*rtp.Packet, error) {
 	b := make([]byte, receiveMTU)
 	i, err := t.Read(b)
 	if err != nil {
@@ -159,6 +174,7 @@ func (t *Track) ReadRTP() (*rtp.Packet, error) {
 	if err := r.Unmarshal(b[:i]); err != nil {
 		return nil, err
 	}
+
 	return r, nil
 }
 
@@ -193,6 +209,19 @@ func (t *Track) WriteSample(s media.Sample) error {
 
 // WriteRTP writes RTP packets to the track
 func (t *Track) WriteRTP(p *rtp.Packet) error {
+	if t.interceptorChain != nil {
+		var err error
+		p, err = t.interceptorChain.wrapWriteRTP(p)
+		if err != nil {
+			return err
+		}
+	}
+
+	return t.writeRTP(p)
+}
+
+// writeRTP writes RTP packets to the track
+func (t *Track) writeRTP(p *rtp.Packet) error {
 	t.mu.RLock()
 	if t.receiver != nil {
 		t.mu.RUnlock()

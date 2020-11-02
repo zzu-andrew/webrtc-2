@@ -74,6 +74,8 @@ type PeerConnection struct {
 	dtlsTransport *DTLSTransport
 	sctpTransport *SCTPTransport
 
+	interceptorChain *interceptorChain
+
 	// A reference to the associated API state used by this connection
 	api *API
 	log logging.LeveledLogger
@@ -117,6 +119,8 @@ func (api *API) NewPeerConnection(configuration Configuration) (*PeerConnection,
 		api: api,
 		log: api.settingEngine.LoggerFactory.NewLogger("pc"),
 	}
+
+	pc.interceptorChain = newInterceptorChain(pc, api.settingEngine.interceptors)
 
 	var err error
 	if err = pc.initConfiguration(configuration); err != nil {
@@ -1817,7 +1821,14 @@ func (pc *PeerConnection) NewTrack(payloadType uint8, ssrc uint32, id, label str
 		return nil, errPeerConnCodecPayloaderNotSet
 	}
 
-	return NewTrack(payloadType, ssrc, id, label, codec)
+	t, err := NewTrack(payloadType, ssrc, id, label, codec)
+	if err != nil {
+		return nil, err
+	}
+
+	t.interceptorChain = pc.interceptorChain
+
+	return t, nil
 }
 
 func (pc *PeerConnection) newRTPTransceiver(

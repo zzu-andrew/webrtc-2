@@ -95,9 +95,10 @@ func (r *RTPReceiver) Receive(parameters RTPReceiveParameters) error {
 	if len(parameters.Encodings) == 1 && parameters.Encodings[0].SSRC != 0 {
 		t := trackStreams{
 			track: &Track{
-				kind:     r.kind,
-				ssrc:     parameters.Encodings[0].SSRC,
-				receiver: r,
+				kind:             r.kind,
+				ssrc:             parameters.Encodings[0].SSRC,
+				receiver:         r,
+				interceptorChain: parameters.interceptorChain,
 			},
 		}
 
@@ -112,9 +113,10 @@ func (r *RTPReceiver) Receive(parameters RTPReceiveParameters) error {
 		for _, encoding := range parameters.Encodings {
 			r.tracks = append(r.tracks, trackStreams{
 				track: &Track{
-					kind:     r.kind,
-					rid:      encoding.RID,
-					receiver: r,
+					kind:             r.kind,
+					rid:              encoding.RID,
+					receiver:         r,
+					interceptorChain: parameters.interceptorChain,
 				},
 			})
 		}

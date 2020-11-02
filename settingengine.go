@@ -58,6 +58,7 @@ type SettingEngine struct {
 	LoggerFactory                             logging.LoggerFactory
 	iceTCPMux                                 ice.TCPMux
 	iceProxyDialer                            proxy.Dialer
+	interceptors                              []Interceptor
 }
 
 // DetachDataChannels enables detaching data channels. When enabled
